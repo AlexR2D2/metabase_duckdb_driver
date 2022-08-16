@@ -46,14 +46,15 @@ If you're running Metabase from the Mac App, the plugins directory defaults to `
 
 If you are running the Docker image or you want to use another directory for plugins, you should specify a custom plugins directory by setting the environment variable `MB_PLUGINS_DIR`.
 
-
 ## Building the DuckDB Driver Yourself
 
 ### One time setup of metabase
 
 You require metabase to be installed alongside of your project
+
 1. cd metabase-duckdb-driver/..
 2. execute
+
    ```
    git clone https://github.com/metabase/metabase
    cd metabase
@@ -64,10 +65,18 @@ You require metabase to be installed alongside of your project
    ```
 
 ### Build
+
 1. modify :paths in deps.edn, make them absolute
-2. `clojure -X:build :project-dir "\"$(pwd)\""`
+2. `$ `clojure -X:build :project-dir "\"$(pwd)\""`
 
 This will build a file called `target/duckdb.metabase-driver.jar`; copy this to your Metabase `./plugins` directory.
+
+### Build in dev container using Visual Studio SCode
+
+Install the VSCode 'Remote - Containers' extension. Start the Docker engine. Open the project in the VSCode. You will be asked if you want to re-open the project in a dev container. Reopen the project in the container. Wait until it started. Start new VSCode terminal and build plugin the same way:
+
+1. modify :paths in deps.edn, make them absolute
+2. `vscode ➜ /workspaces/metabase_duckdb_driver (main ✗) $ clojure -X:build :project-dir "\"$(pwd)\""`
 
 ## Configuring
 
