@@ -1,0 +1,22 @@
+info:
+  name: Metabase DuckDB Driver
+  version: 1.0.0-SNAPSHOT-0.1.0
+  description: Allows Metabase to connect to DuckDB databases.
+contact-info:
+  name: Alexander Golubov
+  address: golubov.ax@yandex.ru
+driver:
+  name: duckdb
+  display-name: DuckDB
+  lazy-load: true
+  parent: sql-jdbc
+  connection-properties:
+    - name: database_file
+      display-name: Database file
+      placeholder: /home/you/the.duckdb (or empty for 'in memory' mode)
+      required: false
+init:
+  - step: load-namespace
+    namespace: metabase.driver.duckdb
+  - step: register-jdbc-driver
+    class: org.duckdb.DuckDBDriver

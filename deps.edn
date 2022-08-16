@@ -1,0 +1,39 @@
+{
+  :paths [
+    ; in case you get the error `All dirs should be absolute`, you forgot to define an absolute project-dir like so:
+    ; clojure -X:build :project-dir "\"$(pwd)\""
+    "src"
+    "resources"
+  ]
+
+  :deps {
+    org.clojure/clojure {:mvn/version "1.11.1"}
+    ; replace also the version in metabase-plugin.yaml
+    metabase/metabase-core {
+      :git/url "https://github.com/metabase/metabase.git"
+      :git/tag "v0.43.0"
+      :git/sha "ee686fcfe5"
+    }
+    metabase/build-drivers {
+      :git/url "https://github.com/metabase/metabase.git"
+      :git/tag "v0.43.0"
+      :git/sha "ee686fcfe5"
+      :deps/root "bin/build-drivers"
+    }
+    org.duckdb/duckdb_jdbc {:mvn/version "0.4.0"}
+  }
+
+  ; build the driver with `clojure -X:build :project-dir "\"$(pwd)\""`
+  :aliases {
+       :build {
+       :exec-fn    build-drivers.build-driver/build-driver!
+       :exec-args  {:driver      :duckdb
+                    :project-dir "."
+                    :target-dir  "./target"}
+    }
+    ; We don't want to include metabase nor clojure in the uber jar
+    :oss {:replace-deps  {
+      org.duckdb/duckdb_jdbc {:mvn/version "0.4.0"}
+    }}
+  }
+}

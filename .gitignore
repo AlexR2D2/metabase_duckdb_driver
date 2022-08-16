@@ -1,0 +1,12 @@
+\#*\#
+.\#*
+/target
+/.nrepl-port
+/bin
+.classpath
+.project
+.idea
+*.iml
+duckdb-driver.iml
+.lein-repl-history
+.cpcache
