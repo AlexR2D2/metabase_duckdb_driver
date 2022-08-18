@@ -71,7 +71,7 @@ You require metabase to be installed alongside of your project
 
 This will build a file called `target/duckdb.metabase-driver.jar`; copy this to your Metabase `./plugins` directory.
 
-### Build in dev container using Visual Studio SCode
+### Build in dev container using Visual Studio Code
 
 Install the VSCode 'Remote - Containers' extension. Start the Docker engine. Open the project in the VSCode. You will be asked if you want to re-open the project in a dev container. Reopen the project in the container. Wait until it started. Start new VSCode terminal and build plugin the same way:
 

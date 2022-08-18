@@ -1,12 +1,10 @@
 (ns metabase.driver.duckdb
-  (:require [clojure.tools.logging :as log]
-            [clojure.java.jdbc :as jdbc]
+  (:require [clojure.java.jdbc :as jdbc]
             [medley.core :as m]
             [metabase.driver :as driver]
             [metabase.driver.sql-jdbc.connection :as sql-jdbc.conn]
             [metabase.driver.sql-jdbc.execute :as sql-jdbc.execute]
-            [metabase.driver.sql-jdbc.sync :as sql-jdbc.sync]
-            [metabase.util.i18n :refer [trs]])
+            [metabase.driver.sql-jdbc.sync :as sql-jdbc.sync])
   (:import [java.sql ResultSet Types]))
 
 (driver/register! :duckdb, :parent :sql-jdbc)
@@ -19,7 +17,6 @@
     :subname     (or database_file "")
     :read_only   true}
    (dissoc details :database_file))]
-   (log/info (trs "Conn details {0}, source details {1}" (pr-str conn_details) (pr-str details)))
    conn_details))
 
 (def ^:private database-type->base-type
@@ -71,12 +68,19 @@
   [_ field-type]
   (database-type->base-type field-type))
 
-; .getObject of DuckDB (v0.4.0) does't handle the java.time.LocalDate but sql.Date only,
-; so get the sql.Date from DuckDB and convert it to java.time.LocalDate
+;; .getObject of DuckDB (v0.4.0) does't handle the java.time.LocalDate but sql.Date only,
+;; so get the sql.Date from DuckDB and convert it to java.time.LocalDate
 (defmethod sql-jdbc.execute/read-column-thunk [:duckdb Types/DATE]
   [_ ^ResultSet rs _ ^Integer i]
   (fn []
     (let [sqlDate (.getObject rs i java.sql.Date)] (.toLocalDate sqlDate))))
+
+;; .getObject of DuckDB (v0.4.0) does't handle the java.time.LocalTime but sql.Time only,
+;; so get the sql.Time from DuckDB and convert it to java.time.LocalTime
+(defmethod sql-jdbc.execute/read-column-thunk [:duckdb Types/TIME]
+  [_ ^ResultSet rs _ ^Integer i]
+  (fn []
+    (let [sqlTime (.getObject rs i java.sql.Time)] (.toLocalTime sqlTime))))
 
 (defmethod driver/describe-database :duckdb
   [_ database]
