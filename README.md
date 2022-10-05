@@ -55,19 +55,19 @@ You require metabase to be installed alongside of your project
 1. cd metabase-duckdb-driver/..
 2. execute
 
-   ```
-   git clone https://github.com/metabase/metabase
-   cd metabase
-   clojure -X:deps prep
-   cd modules/drivers
-   clojure -X:deps prep
-   cd ../../../metabase-duckdb-driver
-   ```
+```bash
+git clone https://github.com/metabase/metabase
+cd metabase
+clojure -X:deps prep
+cd modules/drivers
+clojure -X:deps prep
+cd ../../../metabase-duckdb-driver
+```
 
 ### Build
 
 1. modify :paths in deps.edn, make them absolute
-2. `$ `clojure -X:build :project-dir "\"$(pwd)\""`
+2. `$`clojure -X:build :project-dir "\"$(pwd)\""`
 
 This will build a file called `target/duckdb.metabase-driver.jar`; copy this to your Metabase `./plugins` directory.
 
@@ -89,10 +89,20 @@ Because of feature of DuckDB allowing you [to run SQL queries directly on Parque
 
 For example (somewhere in Metabase SQL Query editor):
 
-```
+```sql
 # DuckDB selected as source
 
 SELECT originalTitle, startYear, genres, numVotes, averageRating from '/Users/you/movies/title.basics.parquet' x
 JOIN (SELECT * from '/Users/you/movies/title.ratings.parquet') y ON x.tconst = y.tconst
 ORDER BY averageRating * numVotes DESC
 ```
+
+## Docker
+
+Unfortunately, DuckDB plugin does't work in the default Alpine based Metabase docker container due to some glibc problems. But it works in the Ubuntu based Metabase docker image. There is Ubuntu based image build script in the docker folder of this project. So, please, run Docker daemon in you host and:
+
+```bash
+./build_image.sh
+```
+
+After a while, it will build the `metabase_duckdb` Ubuntu based image of Metabase with DuckDB plugin. Just run container of this image exposing 3000 port.

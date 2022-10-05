@@ -11,16 +11,16 @@
     ; replace also the version in metabase-plugin.yaml
     metabase/metabase-core {
       :git/url "https://github.com/metabase/metabase.git"
-      :git/tag "v0.43.0"
-      :git/sha "ee686fcfe5"
+      :git/tag "v1.44.3"
+      :git/sha "7d50282"
     }
     metabase/build-drivers {
       :git/url "https://github.com/metabase/metabase.git"
-      :git/tag "v0.43.0"
-      :git/sha "ee686fcfe5"
+      :git/tag "v1.44.3"
+      :git/sha "7d50282"
       :deps/root "bin/build-drivers"
     }
-    org.duckdb/duckdb_jdbc {:mvn/version "0.4.0"}
+    org.duckdb/duckdb_jdbc {:mvn/version "0.5.1"}
   }
 
   ; build the driver with `clojure -X:build :project-dir "\"$(pwd)\""`
@@ -33,7 +33,7 @@
     }
     ; We don't want to include metabase nor clojure in the uber jar
     :oss {:replace-deps  {
-      org.duckdb/duckdb_jdbc {:mvn/version "0.4.0"}
+      org.duckdb/duckdb_jdbc {:mvn/version "0.5.1"}
     }}
   }
 }
