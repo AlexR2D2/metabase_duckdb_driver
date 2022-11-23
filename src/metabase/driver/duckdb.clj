@@ -5,7 +5,7 @@
             [metabase.driver.sql-jdbc.connection :as sql-jdbc.conn]
             [metabase.driver.sql-jdbc.execute :as sql-jdbc.execute]
             [metabase.driver.sql-jdbc.sync :as sql-jdbc.sync])
-  (:import [java.sql ResultSet Types]))
+  (:import [java.sql Statement ResultSet ResultSetMetaData Types]))
 
 (driver/register! :duckdb, :parent :sql-jdbc)
 
@@ -14,9 +14,8 @@
   (let [conn_details (merge
    {:classname   "org.duckdb.DuckDBDriver"
     :subprotocol "duckdb"
-    :subname     (or database_file "")
-    :read_only   true}
-   (dissoc details :database_file))]
+    :subname     (or database_file "")}
+   (dissoc details :database_file :port :engine))]
    conn_details))
 
 (def ^:private database-type->base-type
@@ -81,6 +80,26 @@
   [_ ^ResultSet rs _ ^Integer i]
   (fn []
     (let [sqlTime (.getObject rs i java.sql.Time)] (.toLocalTime sqlTime))))
+
+(defn empty-rs [_] ;
+  (reify
+    ResultSet
+    (getMetaData [_]
+      (reify
+        ResultSetMetaData
+        (getColumnCount [_] 1)
+        (getColumnLabel [_ _idx] "WARNING")
+        (getColumnTypeName [_ _] "CHAR")
+        (getColumnType [_ _] Types/CHAR)))
+    (next [_] false)
+    (close [_])))
+
+;; override native execute-statement! to make queries that does't returns ResultSet
+(defmethod sql-jdbc.execute/execute-statement! :sql-jdbc
+  [_driver ^Statement stmt ^String sql]
+  (if (.execute stmt sql)
+    (.getResultSet stmt)
+    (empty-rs [])))
 
 (defmethod driver/describe-database :duckdb
   [_ database]

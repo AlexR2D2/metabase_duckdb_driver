@@ -14,12 +14,16 @@ RUN apt-get update && \
     /opt/java/openjdk/bin/keytool -noprompt -import -trustcacerts -alias azure-cert -file /app/certs/DigiCertGlobalRootG2.crt.pem -keystore /etc/ssl/certs/java/cacerts -keypass changeit -storepass changeit && \
     mkdir -p /plugins && chmod a+rwx /plugins
 
-# add Metabase script and uberjar
-COPY --from=builder /home/circleci/target/uberjar/metabase.jar /app/
-COPY bin/docker/run_metabase.sh /app/
+# add Metabase jar & add our run script to the image
+COPY ./metabase.jar ./run_metabase.sh /app/
 
 # expose our default runtime port
 EXPOSE 3000
+
+# if you have an H2 database that you want to initialize the new Metabase
+# instance with, mount it in the container as a volume that will match the
+# pattern /app/initial*.db:
+# $ docker run ... -v $PWD/metabase.db.mv.db:/app/initial.db.mv.db ...
 
 # run it
 ENTRYPOINT ["/app/run_metabase.sh"]

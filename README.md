@@ -73,10 +73,11 @@ This will build a file called `target/duckdb.metabase-driver.jar`; copy this to 
 
 ### Build in dev container using Visual Studio Code
 
-Install the VSCode 'Remote - Containers' extension. Start the Docker engine. Open the project in the VSCode. You will be asked if you want to re-open the project in a dev container. Reopen the project in the container. Wait until it started. Start new VSCode terminal and build plugin the same way:
+Install the VSCode 'Remote - Containers' extension. Start the Docker engine. Open the project in the VSCode. You will be asked if you want to re-open the project in a dev container. Reopen the project in the container. Wait until it started. Start new VSCode terminal and build plugin:
 
-1. modify :paths in deps.edn, make them absolute
-2. `vscode ➜ /workspaces/metabase_duckdb_driver (main ✗) $ clojure -X:build :project-dir "\"$(pwd)\""`
+1. check the versions you need of Metabase and DuckDB in the `build_docker_image.sh` and `deps.edn`
+2. modify :paths in deps.edn, make them absolute
+3. `vscode ➜ /workspaces/metabase_duckdb_driver (main ✗) $ clojure -X:build :project-dir "\"$(pwd)\""`
 
 ## Configuring
 
@@ -102,7 +103,7 @@ ORDER BY averageRating * numVotes DESC
 Unfortunately, DuckDB plugin does't work in the default Alpine based Metabase docker container due to some glibc problems. But it works in the Ubuntu based Metabase docker image. There is Ubuntu based image build script in the docker folder of this project. So, please, run Docker daemon in you host and:
 
 ```bash
-./build_image.sh
+./build_docker_image.sh
 ```
 
 After a while, it will build the `metabase_duckdb` Ubuntu based image of Metabase with DuckDB plugin. Just run container of this image exposing 3000 port.

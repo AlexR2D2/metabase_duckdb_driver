@@ -10,3 +10,5 @@
 duckdb-driver.iml
 .lein-repl-history
 .cpcache
+.clj-kondo
+.lsp

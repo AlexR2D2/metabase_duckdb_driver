@@ -11,13 +11,13 @@
     ; replace also the version in metabase-plugin.yaml
     metabase/metabase-core {
       :git/url "https://github.com/metabase/metabase.git"
-      :git/tag "v1.44.3"
-      :git/sha "7d50282"
+      :git/tag "v1.44.6"
+      :git/sha "5c6ae21"
     }
     metabase/build-drivers {
       :git/url "https://github.com/metabase/metabase.git"
-      :git/tag "v1.44.3"
-      :git/sha "7d50282"
+      :git/tag "v1.44.6"
+      :git/sha "5c6ae21"
       :deps/root "bin/build-drivers"
     }
     org.duckdb/duckdb_jdbc {:mvn/version "0.5.1"}
