@@ -20,7 +20,7 @@
       :git/sha "5c6ae21"
       :deps/root "bin/build-drivers"
     }
-    org.duckdb/duckdb_jdbc {:mvn/version "0.5.1"}
+    org.duckdb/duckdb_jdbc {:mvn/version "0.6.1"}
   }
 
   ; build the driver with `clojure -X:build :project-dir "\"$(pwd)\""`
@@ -33,7 +33,7 @@
     }
     ; We don't want to include metabase nor clojure in the uber jar
     :oss {:replace-deps  {
-      org.duckdb/duckdb_jdbc {:mvn/version "0.5.1"}
+      org.duckdb/duckdb_jdbc {:mvn/version "0.6.1"}
     }}
   }
 }
