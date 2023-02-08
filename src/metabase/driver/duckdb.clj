@@ -14,12 +14,13 @@
 (driver/register! :duckdb, :parent :sql-jdbc)
 
 (defmethod sql-jdbc.conn/connection-details->spec :duckdb
-  [_ {:keys [database_file], :as details}]
+  [_ {:keys [database_file, read_only], :as details}]
   (let [conn_details (merge
-   {:classname   "org.duckdb.DuckDBDriver"
-    :subprotocol "duckdb"
-    :subname     (or database_file "")}
-   (dissoc details :database_file :port :engine))]
+   {:classname         "org.duckdb.DuckDBDriver"
+    :subprotocol       "duckdb"
+    :subname           (or database_file "")
+    "duckdb.read_only" (str read_only)}
+   (dissoc details :database_file :read_only :port :engine))]
    conn_details))
 
 (def ^:private database-type->base-type
