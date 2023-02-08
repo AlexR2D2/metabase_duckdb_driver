@@ -15,6 +15,10 @@ driver:
       display-name: Database file
       placeholder: /home/you/the.duckdb (or empty for 'in memory' mode)
       required: false
+    - name: read_only
+      display-name: Establish a read-only connection
+      default: false
+      type: boolean
 init:
   - step: load-namespace
     namespace: metabase.driver.duckdb
