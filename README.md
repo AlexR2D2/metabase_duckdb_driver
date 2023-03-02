@@ -100,10 +100,31 @@ ORDER BY averageRating * numVotes DESC
 
 ## Docker
 
-Unfortunately, DuckDB plugin does't work in the default Alpine based Metabase docker container due to some glibc problems. But it works in the Ubuntu based Metabase docker image. There is Ubuntu based image build script in the docker folder of this project. So, please, run Docker daemon in you host and:
+Unfortunately, DuckDB plugin does't work in the default Alpine based Metabase docker container due to some glibc problems. But it works in the Ubuntu based Metabase docker image. The project contains a script to buld Ubuntu based image with DuckDB plugin, so you can build this image this way:
 
 ```bash
-./build_docker_image.sh
+apps $ git clone git@github.com:AlexR2D2/metabase_duckdb_driver.git
+apps $ cd metabase_duckdb_driver
+apps/metabase_duckdb_driver $ ./build_docker_image.sh
+
+... wait for the image to build
+
 ```
 
 After a while, it will build the `metabase_duckdb` Ubuntu based image of Metabase with DuckDB plugin. Just run container of this image exposing 3000 port.
+
+### Using DB file with Docker
+
+In order to use the DuckDB database file from your local host in the docker container you should mount folder with your DB file into docker container
+
+```bash
+docker run -v /dir_with_my_duck_db_file_in_the_local_host/:/container/directory ...
+```
+
+Next, in the settings page of DuckDB of Metabase Web UI you could set your DB file name like this
+
+```bash
+/container/directory/<you_duckdb_file>
+```
+
+The same way you could mount the dir with parquet files into container and make SQL queries to this files using directory in your container.

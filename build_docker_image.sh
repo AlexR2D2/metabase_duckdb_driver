@@ -10,6 +10,7 @@ CUR=$PWD
 
 # Metabase
 MB_VSN=v1.44.6
+RELEASE_TAG=0.1.6
 MB_GIT_URL=https://github.com/metabase/metabase.git
 MB_SRC_FOLDER=docker/metabase/source
 MB_IMAGE_NAME=ubuntu_metabase
@@ -26,6 +27,10 @@ yes | cp -rf docker/metabase/bin/docker/* $MB_SRC_FOLDER/$MB_VSN/bin/docker
 
 # Build the Metabase Ubuntu based docker image
 cd $MB_SRC_FOLDER/$MB_VSN && docker build -t $MB_IMAGE_NAME -f Dockerfile . && cd $CUR
+
+# Getting the duckdb.metabase-driver.jar plugin
+mkdir target
+wget -P target https://github.com/AlexR2D2/metabase_duckdb_driver/releases/download/$RELEASE_TAG/duckdb.metabase-driver.jar
 
 # Build the Metabase image with DuckDB plugin
 docker build -t $MB_DUCKDB_IMAGE_NAME -f docker/Dockerfile .

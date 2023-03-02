@@ -1,7 +1,6 @@
 (ns metabase.driver.duckdb
   (:require [clojure.java.jdbc :as jdbc]
             [honeysql.core :as hsql]
-            [honeysql.format :as hformat]
             [medley.core :as m]
             [metabase.driver :as driver]
             [metabase.driver.sql-jdbc.connection :as sql-jdbc.conn]
