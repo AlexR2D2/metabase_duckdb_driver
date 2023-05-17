@@ -12,8 +12,6 @@ core Metabase GitHub repository.
 
 [DuckDB](https://duckdb.org) is an in-process SQL OLAP database management. It does not run as a separate process, but completely embedded within a host process. So, it **embedds to the Metabase process** like Sqlite.
 
-DuckDB is designed to support analytical query workloads, also known as Online analytical processing (OLAP). It contains a columnar-vectorized query execution engine, where queries are still interpreted, but a large batch of values (a “vector”) are processed in one operation. This greatly reduces overhead present in traditional systems such as PostgreSQL, MySQL or SQLite which process each row sequentially. Vectorized query execution leads to far better performance in OLAP queries. [More...](https://duckdb.org/why_duckdb)
-
 ## Obtaining the DuckDB Metabase driver
 
 ### Where to find it
@@ -46,39 +44,6 @@ If you're running Metabase from the Mac App, the plugins directory defaults to `
 
 If you are running the Docker image or you want to use another directory for plugins, you should specify a custom plugins directory by setting the environment variable `MB_PLUGINS_DIR`.
 
-## Building the DuckDB Driver Yourself
-
-### One time setup of metabase
-
-You require metabase to be installed alongside of your project
-
-1. cd metabase-duckdb-driver/..
-2. execute
-
-```bash
-git clone https://github.com/metabase/metabase
-cd metabase
-clojure -X:deps prep
-cd modules/drivers
-clojure -X:deps prep
-cd ../../../metabase-duckdb-driver
-```
-
-### Build
-
-1. modify :paths in deps.edn, make them absolute
-2. `$`clojure -X:build :project-dir "\"$(pwd)\""`
-
-This will build a file called `target/duckdb.metabase-driver.jar`; copy this to your Metabase `./plugins` directory.
-
-### Build in dev container using Visual Studio Code
-
-Install the VSCode 'Remote - Containers' extension. Start the Docker engine. Open the project in the VSCode. You will be asked if you want to re-open the project in a dev container. Reopen the project in the container. Wait until it started. Start new VSCode terminal and build plugin:
-
-1. check the versions you need of Metabase and DuckDB in the `build_docker_image.sh` and `deps.edn`
-2. modify :paths in deps.edn, make them absolute
-3. `vscode ➜ /workspaces/metabase_duckdb_driver (main ✗) $ clojure -X:build :project-dir "\"$(pwd)\""`
-
 ## Configuring
 
 Once you've started up Metabase, go to add a database and select "DuckDB". Provide the path to the DuckDB database file. if you don't specify a path DuckDB will be started in memory mode without any data at all.
@@ -100,18 +65,32 @@ ORDER BY averageRating * numVotes DESC
 
 ## Docker
 
-Unfortunately, DuckDB plugin does't work in the default Alpine based Metabase docker container due to some glibc problems. But it works in the Ubuntu based Metabase docker image. The project contains a script to buld Ubuntu based image with DuckDB plugin, so you can build this image this way:
+Unfortunately, DuckDB plugin does't work in the default Alpine based Metabase docker container due to some glibc problems. But thanks to @ChrisH and @lucmartinon we have simple Dockerfile to create Docker image of Metabase based on Debian where the DuckDB plugin does work.
 
 ```bash
-apps $ git clone git@github.com:AlexR2D2/metabase_duckdb_driver.git
-apps $ cd metabase_duckdb_driver
-apps/metabase_duckdb_driver $ ./build_docker_image.sh
+FROM openjdk:19-buster
 
-... wait for the image to build
+ENV MB_PLUGINS_DIR=/home/plugins/
 
+ADD https://downloads.metabase.com/v0.46.2/metabase.jar /home
+ADD https://github.com/AlexR2D2/metabase_duckdb_driver/releases/download/0.1.6/duckdb.metabase-driver.jar /home/plugins/
+
+RUN chmod 744 /home/plugins/duckdb.metabase-driver.jar
+
+CMD ["java", "-jar", "/home/metabase.jar"]
 ```
 
-After a while, it will build the `metabase_duckdb` Ubuntu based image of Metabase with DuckDB plugin. Just run container of this image exposing 3000 port.
+Build the image:
+```bash
+docker build . --tag metaduck:latest`
+```
+
+Then create the container:
+```bash
+docker run --name metaduck -d -p 80:3000 -m 2GB -e MB_PLUGINS_DIR=/home/plugins metaduck
+```
+
+Open Metabase in the browser: http://localhost
 
 ### Using DB file with Docker
 
