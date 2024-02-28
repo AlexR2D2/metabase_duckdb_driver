@@ -4,9 +4,9 @@
             [medley.core :as m]
             [metabase.driver :as driver]
             [metabase.driver.sql-jdbc.connection :as sql-jdbc.conn]
-            [metabase.driver.sql-jdbc.execute :as sql-jdbc.execute] 
+            [metabase.driver.sql-jdbc.execute :as sql-jdbc.execute]
             [metabase.driver.sql-jdbc.sync :as sql-jdbc.sync]
-            [metabase.driver.sql.query-processor :as sql.qp] 
+            [metabase.driver.sql.query-processor :as sql.qp]
             [metabase.util.honeysql-extensions :as hx])
   (:import [java.sql Statement ResultSet ResultSetMetaData Types]))
 
@@ -74,16 +74,18 @@
 ;; .getObject of DuckDB (v0.4.0) does't handle the java.time.LocalDate but sql.Date only,
 ;; so get the sql.Date from DuckDB and convert it to java.time.LocalDate
 (defmethod sql-jdbc.execute/read-column-thunk [:duckdb Types/DATE]
-  [_ ^ResultSet rs _ ^Integer i]
+  [_ ^ResultSet rs _rsmeta ^Integer i]
   (fn []
-    (let [sqlDate (.getObject rs i java.sql.Date)] (.toLocalDate sqlDate))))
+    (when-let [sqlDate (.getDate rs i)]
+      (.toLocalDate sqlDate))))
 
 ;; .getObject of DuckDB (v0.4.0) does't handle the java.time.LocalTime but sql.Time only,
 ;; so get the sql.Time from DuckDB and convert it to java.time.LocalTime
 (defmethod sql-jdbc.execute/read-column-thunk [:duckdb Types/TIME]
-  [_ ^ResultSet rs _ ^Integer i]
+  [_ ^ResultSet rs _rsmeta ^Integer i]
   (fn []
-    (let [sqlTime (.getObject rs i java.sql.Time)] (.toLocalTime sqlTime))))
+    (when-let [sqlTime (.getTime rs i)]
+      (.toLocalTime sqlTime))))
 
 ;; date processing for aggregation
 
