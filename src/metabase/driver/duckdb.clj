@@ -1,13 +1,13 @@
 (ns metabase.driver.duckdb
   (:require [clojure.java.jdbc :as jdbc]
-            [honeysql.core :as hsql]
+            [honey.sql :as hsql]
             [medley.core :as m]
             [metabase.driver :as driver]
             [metabase.driver.sql-jdbc.connection :as sql-jdbc.conn]
             [metabase.driver.sql-jdbc.execute :as sql-jdbc.execute]
             [metabase.driver.sql-jdbc.sync :as sql-jdbc.sync]
             [metabase.driver.sql.query-processor :as sql.qp]
-            [metabase.util.honeysql-extensions :as hx])
+            [metabase.util.honey-sql-2 :as hx])
   (:import [java.sql Statement ResultSet ResultSetMetaData Types]))
 
 (driver/register! :duckdb, :parent :sql-jdbc)
@@ -21,6 +21,10 @@
     "duckdb.read_only" (str read_only)}
    (dissoc details :database_file :read_only :port :engine))]
    conn_details))
+
+(defmethod sql.qp/honey-sql-version :duckdb
+           [_driver]
+           2)
 
 (def ^:private database-type->base-type
   (sql-jdbc.sync/pattern-based-database-type->base-type
@@ -95,34 +99,34 @@
   [driver hsql-form amount unit]
   (if (= unit :quarter)
     (recur driver hsql-form (* amount 3) :month)
-    (hx/+ (hx/->timestamp hsql-form) (hsql/raw (format "(INTERVAL '%d' %s)" (int amount) (name unit))))))
+    (hx/+ (hx/->timestamp hsql-form) [:raw (format "(INTERVAL '%d' %s)" (int amount) (name unit))])))
 
 (defmethod sql.qp/date [:duckdb :default]         [_ _ expr] expr)
-(defmethod sql.qp/date [:duckdb :minute]          [_ _ expr] (hsql/call :date_trunc (hx/literal :minute) expr))
-(defmethod sql.qp/date [:duckdb :minute-of-hour]  [_ _ expr] (hsql/call :minute expr))
-(defmethod sql.qp/date [:duckdb :hour]            [_ _ expr] (hsql/call :date_trunc (hx/literal :hour) expr))
-(defmethod sql.qp/date [:duckdb :hour-of-day]     [_ _ expr] (hsql/call :hour expr))
-(defmethod sql.qp/date [:duckdb :day]             [_ _ expr] (hsql/call :date_trunc (hx/literal :day) expr))
-(defmethod sql.qp/date [:duckdb :day-of-month]    [_ _ expr] (hsql/call :day expr))
-(defmethod sql.qp/date [:duckdb :day-of-year]     [_ _ expr] (hsql/call :dayofyear expr))
+(defmethod sql.qp/date [:duckdb :minute]          [_ _ expr] [:date_trunc (hx/literal :minute) expr])
+(defmethod sql.qp/date [:duckdb :minute-of-hour]  [_ _ expr] [:minute expr])
+(defmethod sql.qp/date [:duckdb :hour]            [_ _ expr] [:date_trunc (hx/literal :hour) expr])
+(defmethod sql.qp/date [:duckdb :hour-of-day]     [_ _ expr] [:hour expr])
+(defmethod sql.qp/date [:duckdb :day]             [_ _ expr] [:date_trunc (hx/literal :day) expr])
+(defmethod sql.qp/date [:duckdb :day-of-month]    [_ _ expr] [:day expr])
+(defmethod sql.qp/date [:duckdb :day-of-year]     [_ _ expr] [:dayofyear expr])
 
 (defmethod sql.qp/date [:duckdb :day-of-week]
   [_ _ expr]
-  (sql.qp/adjust-day-of-week :duckdb (hsql/call :dayofweek expr)))
+  (sql.qp/adjust-day-of-week :duckdb [:dayofweek expr]))
 
 (defmethod sql.qp/date [:duckdb :week]
   [_ _ expr]
-  (sql.qp/adjust-start-of-week :duckdb (partial hsql/call :date_trunc (hx/literal :week)) expr))
+  (sql.qp/adjust-start-of-week :duckdb (partial conj [:date_trunc] (hx/literal :week)) expr))
 
-(defmethod sql.qp/date [:duckdb :month]           [_ _ expr] (hsql/call :date_trunc (hx/literal :month) expr))
-(defmethod sql.qp/date [:duckdb :month-of-year]   [_ _ expr] (hsql/call :month expr))
-(defmethod sql.qp/date [:duckdb :quarter]         [_ _ expr] (hsql/call :date_trunc (hx/literal :quarter) expr))
-(defmethod sql.qp/date [:duckdb :quarter-of-year] [_ _ expr] (hsql/call :quarter expr))
-(defmethod sql.qp/date [:duckdb :year]            [_ _ expr] (hsql/call :date_trunc (hx/literal :year) expr))
+(defmethod sql.qp/date [:duckdb :month]           [_ _ expr] [:date_trunc (hx/literal :month) expr])
+(defmethod sql.qp/date [:duckdb :month-of-year]   [_ _ expr] [:month expr])
+(defmethod sql.qp/date [:duckdb :quarter]         [_ _ expr] [:date_trunc (hx/literal :quarter) expr])
+(defmethod sql.qp/date [:duckdb :quarter-of-year] [_ _ expr] [:quarter expr])
+(defmethod sql.qp/date [:duckdb :year]            [_ _ expr] [:date_trunc (hx/literal :year) expr])
 
 (defmethod sql.qp/unix-timestamp->honeysql [:duckdb :seconds]
   [_ _ expr]
-  (hsql/call :from_unixtime expr))
+  [:from_unixtime expr])
 
 ;; emty result set for queries without result (like insert...)
 
