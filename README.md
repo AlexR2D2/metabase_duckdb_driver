@@ -107,3 +107,45 @@ Next, in the settings page of DuckDB of Metabase Web UI you could set your DB fi
 ```
 
 The same way you could mount the dir with parquet files into container and make SQL queries to this files using directory in your container.
+
+## How to build the DuckDB .jar plugin yourself
+
+1. Install VS Code with [DevContainer](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) extension (see [details](https://code.visualstudio.com/docs/devcontainers/containers))
+2. Create some folder, let's say `duckdb_plugin`
+3. Clone the `metabase_duckdb_driver` repository into `duckdb_plugin` folder
+4. Copy `.devcontainer` from `duckdb_plugin/metabase_duckdb_driver` into `duckdb_plugin`
+5. Clone the `metabase` repository of version you need into `duckdb_plugin` folder
+6. Now content of the `duckdb_plugin` folder should looks like this:
+```
+  ..
+  .devcontainer
+  metabase
+  metabase_duckdb_driver
+```
+7. Add duckdb record to the deps file `duckdb_plugin/metabase/modules/drivers/deps.edn`
+The end of the file sholud looks like this:
+```
+  ...
+  metabase/sqlserver          {:local/root "sqlserver"}
+  metabase/vertica            {:local/root "vertica"}
+  metabase/duckdb             {:local/root "duckdb"}}}  <- add this!
+```
+8. Set the DuckDB version you need in the `duckdb_plugin/metabase_duckdb_driver/deps.edn`
+9. Create duckdb driver directory in the cloned metabase sourcecode:
+```
+> mkdir -p duckdb_plugin/metabase/modules/drivers/duckdb
+```
+10. Copy the `metabase_duckdb_driver` source code into created dir
+```
+> cp -rf duckdb_plugin/metabase_duckdb_driver/* duckdb_plugin/metabase/modules/drivers/duckdb/
+```
+11. Open `duckdb_plugin` folder in VSCode using DevContainer extension (vscode will offer to open this folder using devcontainer). Wait until all stuff will be loaded. At the end you will get the terminal opened directly in the VS Code, smth like this:
+```
+vscode ➜ /workspaces/duckdb_plugin $
+```
+12. Build the plugin
+```
+vscode ➜ /workspaces/duckdb_plugin $ cd metabase
+vscode ➜ /workspaces/duckdb_plugin $ clojure -X:build:drivers:build/driver :driver :duckdb
+```
+13. jar file of DuckDB plugin will be generated here duckdb_plugin/metabase/resources/modules/duckdb.metabase-driver.jar

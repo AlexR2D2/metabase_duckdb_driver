@@ -1,6 +1,6 @@
 info:
   name: Metabase DuckDB Driver
-  version: 1.0.0-SNAPSHOT-0.1.11
+  version: 1.0.0-SNAPSHOT-0.1.12
   description: Allows Metabase to connect to DuckDB databases.
 contact-info:
   name: Alexander Golubov
