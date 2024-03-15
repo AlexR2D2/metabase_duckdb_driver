@@ -17,7 +17,8 @@
    {:classname         "org.duckdb.DuckDBDriver"
     :subprotocol       "duckdb"
     :subname           (or database_file "")
-    "duckdb.read_only" (str read_only)}
+    "duckdb.read_only" (str read_only)
+    "old_implicit_casting" "true"}
    (dissoc details :database_file :read_only :port :engine))]
    conn_details))
 
